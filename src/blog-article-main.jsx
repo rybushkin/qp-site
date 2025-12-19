@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import SiteHeader from './components/SiteHeader.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import { servicesArticlesPage } from './data/articles.js';
+import { withBase } from './utils/base.js';
 import './styles.css';
 import { runLayoutDebug } from './agentLayoutDebug.js';
 
@@ -23,7 +24,7 @@ function BlogArticlePage() {
           <div className="container">
             <h1 className="section-title">Статья не найдена</h1>
             <p className="section-subtitle">Возможно, ссылка устарела. Вернитесь в блог и выберите статью из списка.</p>
-            <a className="btn btn-secondary" href="/blog.html">
+            <a className="btn btn-secondary" href={withBase('/blog.html')}>
               Перейти в блог
             </a>
           </div>
@@ -40,10 +41,10 @@ function BlogArticlePage() {
         <div className="container">
           <div className="article-shell">
             <div className="article-breadcrumbs">
-              <a className="pill pill-link" href="/blog.html">
+              <a className="pill pill-link" href={withBase('/blog.html')}>
                 ← Назад к блогу
               </a>
-              <a className="pill pill-link" href="/#services-page">
+              <a className="pill pill-link" href={withBase('/#services-page')}>
                 На главную
               </a>
               <span className="pill">
@@ -81,10 +82,10 @@ function BlogArticlePage() {
                 Оставьте параметры партии и маршрут — предложим формат перевозки, сроки и план контрольных точек.
               </p>
               <div className="articles-cta-actions">
-                <a className="btn btn-secondary" href="/#contact">
+                <a className="btn btn-secondary" href={withBase('/#contact')}>
                   Получить расчет
                 </a>
-                <a className="btn btn-primary" href="/blog.html">
+                <a className="btn btn-primary" href={withBase('/blog.html')}>
                   Все статьи
                 </a>
               </div>

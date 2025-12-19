@@ -1,4 +1,6 @@
-export const servicesArticlesPage = {
+import { withBase, withBaseHtml } from '../utils/base.js';
+
+const servicesArticlesPageRaw = {
   title: 'Полезные статьи о перевозках',
   subtitle:
     '12 практических материалов для импортеров, e‑commerce и 3PL: сроки, документы, таможня, мультимодал и контроль поставок из Китая и ЮВА.',
@@ -604,6 +606,21 @@ export const servicesArticlesPage = {
     text: 'Оставьте параметры партии и маршрут — предложим формат перевозки, сроки и план контрольных точек.',
     href: '/#contact',
     label: 'Получить расчет'
+  }
+};
+
+export const servicesArticlesPage = {
+  ...servicesArticlesPageRaw,
+  leadHtml: withBaseHtml(servicesArticlesPageRaw.leadHtml),
+  articles: servicesArticlesPageRaw.articles.map((a) => ({
+    ...a,
+    href: withBase(a.href),
+    cover: withBase(a.cover),
+    contentHtml: withBaseHtml(a.contentHtml)
+  })),
+  bottomCta: {
+    ...servicesArticlesPageRaw.bottomCta,
+    href: withBase(servicesArticlesPageRaw.bottomCta?.href)
   }
 };
 

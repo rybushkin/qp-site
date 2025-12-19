@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { withBase } from '../utils/base.js';
 
 export const NAV_ITEMS = [
   { label: 'Услуги', href: '/#services-page' },
@@ -19,15 +20,15 @@ export default function SiteHeader() {
   const [activeHref, setActiveHref] = useState(() => {
     if (typeof window === 'undefined') return '/#hero';
     const { pathname, hash } = window.location;
-    if (pathname.endsWith('/blog.html') || pathname.includes('blog-')) return '/blog.html';
-    return hash ? `/${hash}` : '/#hero';
+    if (pathname.endsWith('/blog.html') || pathname.includes('blog-')) return withBase('/blog.html');
+    return withBase(hash ? `/${hash}` : '/#hero');
   });
   const [isMobileNav, setIsMobileNav] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia?.(MOBILE_NAV_MEDIA)?.matches ?? window.innerWidth <= 1024;
   });
 
-  const navItems = useMemo(() => NAV_ITEMS, []);
+  const navItems = useMemo(() => NAV_ITEMS.map((i) => ({ ...i, href: withBase(i.href) })), []);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -41,14 +42,21 @@ export default function SiteHeader() {
     const { pathname, hash } = window.location;
     const isBlog = pathname.endsWith('/blog.html') || pathname.includes('blog-');
     if (isBlog) {
-      setActiveHref('/blog.html');
+      setActiveHref(withBase('/blog.html'));
       return;
     }
 
     const sectionIds = navItems
       .map((i) => i.href)
-      .filter((href) => href.startsWith('/#'))
-      .map((href) => href.replace('/#', ''));
+      .map((href) => {
+        try {
+          return new URL(href, window.location.origin).hash;
+        } catch {
+          return '';
+        }
+      })
+      .filter((h) => h && h.startsWith('#'))
+      .map((h) => h.slice(1));
 
     const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
     if (!sections.length) return;
@@ -58,7 +66,7 @@ export default function SiteHeader() {
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0))[0];
-        if (visible?.target?.id) setActiveHref(`/#${visible.target.id}`);
+        if (visible?.target?.id) setActiveHref(withBase(`/#${visible.target.id}`));
       },
       { root: null, threshold: [0.25, 0.4, 0.6], rootMargin: '-25% 0px -60% 0px' }
     );
@@ -81,8 +89,8 @@ export default function SiteHeader() {
   return (
     <header className="site-header">
       <div className="container topbar">
-        <a className="logo" href="/" title="На главную">
-          <img className="logo-img" src="/pics/logo.png" alt="Quantum Post" decoding="async" loading="eager" />
+        <a className="logo" href={withBase('/')} title="На главную">
+          <img className="logo-img" src={withBase('/pics/logo.png')} alt="Quantum Post" decoding="async" loading="eager" />
         </a>
 
         <nav className="nav" aria-label="Основная навигация">
@@ -112,7 +120,7 @@ export default function SiteHeader() {
             <span />
           </button>
           {!isMobileNav ? (
-            <a className="btn btn-primary header-cta header-cta-desktop" href="/#contact">
+            <a className="btn btn-primary header-cta header-cta-desktop" href={withBase('/#contact')}>
               Рассчитать доставку
             </a>
           ) : null}
@@ -142,7 +150,7 @@ export default function SiteHeader() {
                   {item.label}
                 </a>
               ))}
-              <a className="btn btn-primary mobile-nav-cta" href="/#contact" onClick={() => setIsOpen(false)}>
+              <a className="btn btn-primary mobile-nav-cta" href={withBase('/#contact')} onClick={() => setIsOpen(false)}>
                 Рассчитать доставку
               </a>
             </div>

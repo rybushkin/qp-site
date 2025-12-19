@@ -3,6 +3,7 @@ import { hero, stats, geography, cargoTypes, segments, steps, benefits, security
 import { servicesArticlesPage } from './data/articles.js';
 import SiteHeader from './components/SiteHeader.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
+import { withBase } from './utils/base.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -111,14 +112,14 @@ const Geography = () => (
       {geography.subtitle ? <p className="section-subtitle">{geography.subtitle}</p> : null}
       <div className="geo-layout">
         <div className="map-wrap" data-anim="zoom">
-          <img className="map-img" src="/pics/map.png" alt="Карта маршрутов Quantum Post" loading="lazy" decoding="async" />
+          <img className="map-img" src={withBase('/pics/map.png')} alt="Карта маршрутов Quantum Post" loading="lazy" decoding="async" />
         </div>
         <div className="hub-grid">
           {geography.hubs.map((hub) => (
             <div key={hub.city} className="hub-card" data-anim="fade">
               {hub.icon ? (
                 <div className="hub-icon" aria-hidden="true">
-                  <img className="hub-icon-img" src={hub.icon} alt="" loading="lazy" decoding="async" />
+                  <img className="hub-icon-img" src={withBase(hub.icon)} alt="" loading="lazy" decoding="async" />
                 </div>
               ) : (
                 <Placeholder ratio="ratio-1-1" label="Иконка" />
@@ -341,7 +342,7 @@ const Blog = () => (
       <h2 className="section-title">Блог</h2>
       <p className="section-subtitle">{servicesArticlesPage.subtitle}</p>
       <div className="blog-actions">
-        <a className="btn btn-secondary" href="/blog.html">
+        <a className="btn btn-secondary" href={withBase('/blog.html')}>
           Читать больше
         </a>
       </div>
@@ -350,11 +351,11 @@ const Blog = () => (
           <a
             key={a.id}
             className="card blog-card blog-card-link"
-            href={a.href ?? `/blog-${a.id}.html`}
+            href={withBase(a.href ?? `/blog-${a.id}.html`)}
             aria-label={a.title}
           >
             <div className="card-media" aria-hidden="true">
-              <img className="card-media-img" src={a.cover ?? '/pics/0001.png'} alt={a.title} loading="lazy" decoding="async" />
+              <img className="card-media-img" src={withBase(a.cover ?? '/pics/0001.png')} alt={a.title} loading="lazy" decoding="async" />
             </div>
             <div className="card-title">{a.title}</div>
             <div className="card-desc">{a.description}</div>

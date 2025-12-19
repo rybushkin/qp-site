@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import SiteHeader from './components/SiteHeader.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import { servicesArticlesPage } from './data/articles.js';
+import { withBase } from './utils/base.js';
 import './styles.css';
 import { runLayoutDebug } from './agentLayoutDebug.js';
 
@@ -30,7 +31,7 @@ function BlogPage() {
             <h1 className="section-title">Блог</h1>
             {p.subtitle ? <p className="section-subtitle">{p.subtitle}</p> : null}
             <div className="blog-actions">
-              <a className="pill" href="/#services-page">
+              <a className="pill" href={withBase('/#services-page')}>
                 На главную
               </a>
               <span className="pill">

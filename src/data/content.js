@@ -1,5 +1,7 @@
+import { withBase } from '../utils/base.js';
+
 const ASSET_VERSION = '2025-12-19-5';
-const withAssetVersion = (path) => `${path}?v=${ASSET_VERSION}`;
+const withAssetVersion = (path) => `${withBase(path)}?v=${ASSET_VERSION}`;
 
 export const hero = {
   title: ['Скоростная ж/д доставка', 'грузов из Китая в Россию'],
@@ -87,27 +89,27 @@ export const segments = {
     {
       name: 'Импортеры электроники и техники',
       desc: 'Быстрая и безопасная доставка товарных партий, возможность частых поставок небольшими объемами.',
-      image: '/pics/cargo-1.png'
+      image: withAssetVersion('/pics/cargo-1.png')
     },
     {
       name: 'Дистрибьютеры и ритейл (одежда, обувь, FMCG)',
       desc: 'Стабильные поставки к началу сезона, прогнозируемый график завоза коллекций.',
-      image: '/pics/cargo-5.png'
+      image: withAssetVersion('/pics/cargo-5.png')
     },
     {
       name: 'E‑commerce и маркетплейсы',
       desc: 'Своевременное пополнение складов, поддержание наличия и гибкость по объемам отправок.',
-      image: '/pics/cargo-2.png'
+      image: withAssetVersion('/pics/cargo-2.png')
     },
     {
       name: 'Производственные компании',
       desc: 'Регулярная поставка сырья и комплектующих, снижение рисков простоя производства.',
-      image: '/pics/cargo-3.png'
+      image: withAssetVersion('/pics/cargo-3.png')
     },
     {
       name: 'Логистические операторы и 3PL',
       desc: 'Включение Quantum Post в комплексные решения и реселлинг услуги конечным клиентам.',
-      image: '/pics/cargo-6.png'
+      image: withAssetVersion('/pics/cargo-6.png')
     }
   ]
 };
@@ -250,21 +252,21 @@ export const servicesPage = {
       name: 'Мультимодальные перевозки',
       desc:
         'Маршруты “дверь-дверь” из Китая и ЮВА с сочетанием ЖД, моря и авто для оптимальных сроков и бюджета.',
-      href: '/service-multimodal.html',
+      href: withBase('/service-multimodal.html'),
       image: withAssetVersion('/pics/0001.png')
     },
     {
       name: 'Таможенное оформление',
       desc:
         'Подготовка пакета документов, расчет платежей, сопровождение на выпуске и разрешительные процедуры.',
-      href: '/service-customs.html',
+      href: withBase('/service-customs.html'),
       image: withAssetVersion('/pics/0002.png')
     },
     {
       name: 'Представитель в Китае',
       desc:
         'Локальная команда: поиск поставщиков, проверка надежности, контроль контрактов и отгрузок.',
-      href: '/service-china.html',
+      href: withBase('/service-china.html'),
       image: withAssetVersion('/pics/0003.png')
     }
   ]
