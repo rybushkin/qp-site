@@ -87,7 +87,7 @@ function processFile(file) {
 }
 
 function main() {
-  const files = [...walk(SRC), path.join(ROOT, 'index.html'), path.join(ROOT, 'services.html')].filter((f) =>
+  const files = [...walk(SRC), path.join(ROOT, 'index.html'), path.join(ROOT, 'blog.html')].filter((f) =>
     fs.existsSync(f)
   );
 

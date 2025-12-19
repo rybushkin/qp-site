@@ -74,7 +74,7 @@ img {
   padding: 0 var(--container-padding);
 }
 
-header {
+.site-header {
   position: sticky;
   top: 0;
   z-index: 10;
@@ -91,11 +91,20 @@ header {
 }
 
 .logo {
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
 }
+
+.logo-img {
+  height: 32px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
 
 .nav {
   display: flex;
@@ -127,7 +136,7 @@ header {
   width: 20px;
   height: 2px;
   background: var(--dark);
-  margin: 4px auto;
+  margin: 1px auto;
 }
 
 .mobile-nav {
@@ -179,6 +188,14 @@ header {
 
 .nav a:hover {
   background: var(--gray-100);
+}
+
+.nav a.is-active {
+  font-weight: var(--fw-bold);
+}
+
+.mobile-nav-link.is-active {
+  font-weight: var(--fw-bold);
 }
 
 .tracking-pill {
@@ -288,6 +305,9 @@ section {
   color: var(--gray-800);
   line-height: 1.38;
   margin-bottom: 22px;
+  max-width: min(72ch, 66%);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .grid {
@@ -321,20 +341,114 @@ section {
   align-content: start;
 }
 
+.cargo-wrap {
+  position: relative;
+  /* full-bleed: растягиваем карусель на всю ширину окна, оставаясь внутри секции */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 0 var(--container-padding);
+}
+
+.cargo-wrap::before,
+.cargo-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 56px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cargo-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.cargo-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.cargo-stack {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 6px 0 8px;
+  scrollbar-width: none;
+}
+
+.cargo-stack::-webkit-scrollbar {
+  display: none;
+}
+
+.cargo-stack .cargo-card {
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+}
+
+.cargo-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--dark);
+  z-index: 2;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.cargo-arrow-left {
+  left: 8px;
+}
+
+.cargo-arrow-right {
+  right: 8px;
+}
+
+.cargo-arrow:hover {
+  background: var(--white);
+  transform: translateY(-50%) scale(1.03);
+}
+
+.cargo-arrow.is-disabled,
+.cargo-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
 .cargo-img-wrap {
   overflow: hidden;
   border-radius: var(--radius);
+  /* Убираем “двойную рамку” (рамка есть у карточки). */
   background: var(--gray-100);
-  border: 1px solid var(--gray-200);
+  border: none;
   display: grid;
   place-items: center;
   align-self: start;
+  box-sizing: border-box;
+  padding: 12px;
 }
 
 .cargo-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .muted {
@@ -375,6 +489,10 @@ section {
   aspect-ratio: 16 / 9;
 }
 
+.ratio-wagon {
+  aspect-ratio: 1360 / 382;
+}
+
 .ratio-4-3 {
   aspect-ratio: 4 / 3;
 }
@@ -395,10 +513,12 @@ section {
 }
 
 #hero .bullets {
-  margin: 0;
+  margin: 0 auto;
   display: grid;
   gap: 10px;
   padding: 0;
+  width: fit-content;
+  text-align: left;
 }
 
 #hero .bullets li {
@@ -420,6 +540,7 @@ section {
   gap: 18px;
   margin-top: 8px;
   align-items: center;
+  justify-content: center;
 }
 
 .cta-link {
@@ -439,39 +560,105 @@ section {
 }
 
 .hero-panel {
-  background: var(--gray-800);
+  --header-offset: 96px;
+  /* насколько “поднимаем” контент вверх (при этом фон остаётся под меню) */
+  --content-offset: 18px;
+  --hero-pad: clamp(24px, 4vw, 48px);
+  position: relative;
+  /* управляем кадрированием фона через переменные:
+     - двигаем вагон ниже (y<100%)
+     - слегка “зумим”, чтобы не появлялись белые/прозрачные поля снизу */
+  /* Важно: y < 100% визуально ОПУСКАЕТ вагон ниже (показываем больше низа картинки) */
+  --hero-bg-y: 92%;
+  --hero-bg-zoom: 1.03;
+  /* “примерный” сдвиг картинки вниз (умеренный, чтобы не обрезать вагон) */
+  --hero-bg-shift: clamp(40px, 6vw, 60px);
+  /* мы увеличили высоту hero — чуть компенсируем фон вверх (слишком много даёт полосу снизу) */
+  --hero-bottom-extra: clamp(36px, 4vw, 56px);
+  /* “резиновая” база отступов + дальше добавляем примерно 20/40px */
+  --hero-title-gap: clamp(4px, 0.8vw, 12px);
+  --hero-subtitle-gap: clamp(8px, 1.1vw, 18px);
+  background: #0b5f78; /* фоллбек, если у PNG есть прозрачность */
+  overflow: hidden;
   color: var(--white);
   border-radius: 16px;
-  padding: clamp(24px, 4vw, 48px);
+  padding: var(--hero-pad);
+  /* вылет фона под sticky header, но контент остаётся ниже меню */
+  margin-top: calc(var(--header-offset) * -1);
+  padding-top: calc(var(--hero-pad) + var(--content-offset));
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
-  display: grid;
-  /* увеличили расстояние между блоками hero (заголовок/подзаголовок/буллеты/кнопки) */
-  gap: clamp(28px, 4vw, 44px);
+  /* другой подход: убираем фиксированную пропорцию, чтобы не было “пустого экрана” */
+  /* чуть ниже опускаем нижнюю границу, чтобы вагон не обрезался */
+  min-height: clamp(640px, 78vh, 860px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
-/* внутри hero gap уже задает ритм — убираем доп. margin у CTA, чтобы не “раздувать” */
-.hero-panel .cta-row {
+.hero-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/pics/hero-section-2.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* +shift = опускаем фон, -bottom-extra = компенсация увеличенной высоты (чтобы вагон не уехал вниз) */
+  background-position: center calc(var(--hero-bg-y) + var(--hero-bg-shift) - var(--hero-bottom-extra));
+  transform: scale(var(--hero-bg-zoom));
+  transform-origin: center bottom;
+  z-index: 0;
+}
+
+.hero-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  /* управляем отступами строго через margin у заголовка/подзаголовка */
+  gap: 0;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-copy .cta-row {
   margin-top: 0;
 }
+
+/* важно: затемнение убрали по запросу — текст остаётся поверх чистой картинки */
 
 .hero-eyebrow {
   color: var(--accent-2);
 }
 
 .hero-title {
+  box-sizing: border-box;
+  display: inline-block;
+  height: auto;
+  min-height: 0;
+  /* было “жёстко 20px”; теперь адаптивно + примерно +20px */
+  margin: 0 0 calc(var(--hero-title-gap) + 20px);
+  padding: 0;
   font-size: clamp(2.6rem, 6vw, 4rem);
-  line-height: 1.05;
+  /* чуть плотнее, чтобы не было ощущения “пустоты” снизу у h1 */
+  line-height: 0.98;
   letter-spacing: -0.02em;
-  margin-bottom: 0;
+  /* расстояние до подзаголовка контролируем через gap в .hero-copy */
   font-style: normal;
+  text-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
 }
 
 .hero-subtitle {
   font-size: clamp(1.05rem, 2.6vw, 1.35rem);
   color: var(--light);
-  margin-bottom: 0;
-  max-width: 640px;
+  /* было “жёстко 40px”; теперь адаптивно + примерно +40px */
+  margin: 0 auto calc(var(--hero-subtitle-gap) + 40px);
+  line-height: 1.25;
+  max-width: min(66ch, 66%);
+  text-shadow: 0 10px 22px rgba(0, 0, 0, 0.55);
 }
 .stat-grid {
   display: grid;
@@ -481,10 +668,11 @@ section {
 
 .stat-card {
   padding: 18px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: var(--accent-2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
+  color: var(--white);
 }
 
 .stat-value {
@@ -492,6 +680,7 @@ section {
   font-weight: var(--fw-bold);
   letter-spacing: -0.01em;
   margin-bottom: 6px;
+  color: var(--dark);
 }
 
 .stat-unit {
@@ -499,13 +688,13 @@ section {
   font-weight: var(--fw-semibold);
   margin-top: -4px;
   margin-bottom: 8px;
-  color: var(--gray-800);
+  color: var(--dark);
 }
 
 .stat-label {
   font-size: 1rem;
-  font-weight: var(--fw-semibold);
-  color: var(--gray-800);
+  font-weight: var(--fw-regular);
+  color: var(--white);
 }
 
 .footnotes {
@@ -524,6 +713,15 @@ section {
 
 .map-wrap {
   width: 100%;
+}
+
+.map-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
 }
 
 .hub-list {
@@ -548,6 +746,25 @@ section {
   border-radius: var(--radius);
   background: var(--white);
   box-shadow: var(--shadow-card);
+}
+
+.hub-icon {
+  width: 78px;
+  height: 78px;
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.hub-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .hub-title {
@@ -591,6 +808,36 @@ section {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: grid;
   gap: 12px;
+}
+
+.segment-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.segment-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--accent-2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--dark);
+  font-weight: var(--fw-bold);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  box-shadow: var(--shadow-card);
+}
+
+.segment-text {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.segments-grid .segment-card {
+  min-width: 0;
 }
 
 .segments-wrap {
@@ -674,6 +921,20 @@ section {
     var(--gray-200) 24px
   );
   border: 1px dashed var(--gray-400);
+  overflow: hidden;
+  position: relative;
+}
+
+/* В сегментах вместо .segment-media сейчас используется Placeholder — фиксируем его высоту и по ней выравниваем стрелки */
+.segments-stack .placeholder {
+  height: var(--segment-media-h);
+}
+
+.segment-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .segment-card:hover {
@@ -700,6 +961,44 @@ section {
 .service-page-card {
   display: grid;
   gap: 10px;
+  background: var(--accent-1);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.service-page-card .card-title,
+.service-page-card .card-desc {
+  color: var(--white);
+}
+
+/* Услуги (карточки на главной): заголовки чуть крупнее */
+.service-page-card .card-title {
+  font-size: clamp(1.25rem, 1.8vw, 1.55rem);
+  line-height: 1.15;
+}
+
+.service-page-card .link-out {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+.service-page-card .link-out:hover {
+  color: #ffe08a;
+}
+
+.service-page-card .card-media {
+  /* Убираем светлую "рамку" вокруг картинок услуг (0001–0003) */
+  border: none;
+  background: transparent;
+}
+
+/* Услуги: описание карточки ровно в 3 строки */
+.service-page-card .card-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  min-height: calc(1.4em * 3);
 }
 
 .services-addon {
@@ -732,6 +1031,330 @@ section {
   line-height: 1.45;
 }
 
+.services-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+}
+
+.services-actions .btn {
+  width: fit-content;
+}
+
+.articles {
+  margin-top: 22px;
+}
+
+/* Якоря с учетом sticky header */
+#services,
+#articles,
+#blog,
+.article {
+  scroll-margin-top: 92px;
+}
+
+.blog {
+  margin-top: 22px;
+}
+
+.blog-grid {
+  margin-top: 18px;
+}
+
+.blog-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.blog-actions .btn {
+  width: fit-content;
+}
+
+.pill-link {
+  text-decoration: underline;
+}
+
+.blog-card {
+  display: grid;
+  gap: 10px;
+}
+
+/* Блог: вся карточка кликабельна */
+.blog-card-link {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blog-card-link:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+.blog-card-link:focus-visible {
+  outline: 3px solid rgba(223, 42, 53, 0.35);
+  outline-offset: 3px;
+}
+
+.blog-card-media {
+  position: relative;
+}
+
+.media-fallback {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--gray-100),
+    var(--gray-100) 12px,
+    var(--gray-200) 12px,
+    var(--gray-200) 24px
+  );
+  border: 1px dashed var(--gray-400);
+}
+
+/* Блог: описание карточки ровно в 3 строки */
+.blog-card .card-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  min-height: calc(1.4em * 3);
+}
+
+.article-shell {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.article-breadcrumbs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.article-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.article-hero-media {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  background: var(--gray-100);
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.article-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.article-hero-copy .article-title {
+  margin-bottom: 10px;
+}
+
+.article-card {
+  /* Было тесно: увеличиваем внутренние отступы ~в 3 раза, но с адаптивом */
+  padding: clamp(24px, 4.5vw, 54px);
+}
+
+.articles-cta-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .article-hero {
+    grid-template-columns: 1fr;
+  }
+  .article-breadcrumbs {
+    justify-content: flex-start;
+  }
+}
+
+.articles-meta {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.articles-meta-link:hover {
+  background: var(--gray-200);
+}
+
+.articles-lead {
+  margin-top: 18px;
+}
+
+.toc {
+  margin-top: 18px;
+  padding: 16px 16px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--gray-400);
+  background: var(--gray-100);
+}
+
+.toc-title {
+  font-weight: var(--fw-bold);
+  margin-bottom: 10px;
+}
+
+.toc-list {
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.toc-item {
+  line-height: 1.35;
+}
+
+.toc-link {
+  display: inline-flex;
+  gap: 10px;
+  align-items: baseline;
+  text-decoration: underline;
+  color: var(--dark);
+}
+
+.toc-link:hover {
+  color: var(--accent-1);
+}
+
+.toc-num {
+  font-weight: var(--fw-bold);
+  color: var(--accent-1);
+  flex: 0 0 auto;
+}
+
+.toc-text {
+  color: var(--gray-800);
+}
+
+.articles-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.article {
+  padding: 18px;
+}
+
+.article-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.article-title {
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.article-desc {
+  color: var(--gray-800);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: var(--gray-800);
+}
+
+.prose {
+  color: var(--gray-800);
+  line-height: 1.6;
+}
+
+.prose p {
+  margin: 10px 0;
+}
+
+.prose a {
+  color: var(--accent-1);
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #b8222b;
+}
+
+.prose h3 {
+  margin-top: 14px;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+  font-weight: var(--fw-bold);
+  color: var(--dark);
+}
+
+.prose ul,
+.prose ol {
+  margin: 10px 0 10px 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.prose li {
+  line-height: 1.5;
+}
+
+.article-faq {
+  margin-top: 12px;
+}
+
+.article-faq-title {
+  font-weight: var(--fw-bold);
+  margin-bottom: 10px;
+}
+
+.articles-cta {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.articles-cta .btn {
+  margin: 12px auto 0;
+  width: fit-content;
+}
+
 .card-media {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -744,8 +1367,15 @@ section {
     var(--gray-200) 24px
   );
   border: 1px dashed var(--gray-400);
+  overflow: hidden;
 }
 
+.card-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .link-out {
   color: var(--accent-1);
   font-weight: var(--fw-semibold);
@@ -773,10 +1403,19 @@ section {
   margin-bottom: 6px;
 }
 
+.stats-extras .card-title {
+  font-size: clamp(1.35rem, 1.8vw, 1.65rem);
+  line-height: 1.15;
+  margin-bottom: 24px;
+}
+
 .cargo-card .card-title {
   min-height: 3.6em;
   display: flex;
   align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
 }
 
 .card-desc {
@@ -846,10 +1485,10 @@ section {
   transform: translateY(-50%);
 }
 
-.step-arrow-down {
-  left: 50%;
-  bottom: -21px;
-  transform: translateX(-50%);
+.step-arrow-left {
+  left: -21px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .benefits-list,
@@ -875,6 +1514,33 @@ section {
 .format-card {
   display: grid;
   gap: 12px;
+}
+
+/* Форматы: фиксируем высоту заголовка, чтобы карточки не “прыгали” из-за разной длины */
+.format-card .card-title {
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: calc(1.2em * 2);
+}
+
+.format-media {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.format-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .faq {
@@ -980,8 +1646,42 @@ summary::-webkit-details-marker {
   margin-bottom: 12px;
 }
 
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.footer-logo {
+  height: 28px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+
 .footer-bottom {
   font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+  .nav {
+    display: none;
+  }
+
+  .burger {
+    display: inline-grid;
+    place-items: center;
+  }
+
+  .header-cta-desktop {
+    display: none;
+  }
+
+  .logo-img {
+    height: 30px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -999,6 +1699,10 @@ summary::-webkit-details-marker {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .cargo-stack .cargo-card {
+    width: 100%;
+  }
+
   .step-item {
     grid-template-columns: 42px 1fr;
   }
@@ -1007,28 +1711,24 @@ summary::-webkit-details-marker {
     grid-template-columns: 1fr;
   }
 
-  .nav {
-    gap: 6px;
-    justify-content: flex-start;
-  }
-
   .container {
     padding: 0 20px;
   }
 }
 
 @media (max-width: 640px) {
-  .nav {
-    display: none;
+  .logo-img {
+    height: 28px;
   }
 
-  .burger {
-    display: inline-grid;
-    place-items: center;
+  .hero-panel {
+    min-height: clamp(600px, 82vh, 820px);
+    --hero-bg-y: 94%;
+    --hero-bg-zoom: 1.04;
   }
 
-  .header-cta-desktop {
-    display: none;
+  .hero-copy .cta-row {
+    margin-top: 0;
   }
 
   .cta-row {
@@ -1048,8 +1748,20 @@ summary::-webkit-details-marker {
     display: none;
   }
 
+  .cargo-arrow {
+    display: none;
+  }
+
   .segments-stack {
     padding: 6px 0 8px;
+  }
+
+  .cargo-stack {
+    padding: 6px 0 8px;
+  }
+
+  .cargo-stack .cargo-card {
+    width: 100%;
   }
 
   .steps-list {

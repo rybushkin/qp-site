@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import SiteHeader from './components/SiteHeader.jsx';
+import SiteFooter from './components/SiteFooter.jsx';
 import { servicesPage } from './data/content.js';
 import './styles.css';
 import { runLayoutDebug } from './agentLayoutDebug.js';
@@ -25,6 +26,7 @@ function ServiceDetailPage() {
           <p className="card-desc">Страница в разработке.</p>
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }
