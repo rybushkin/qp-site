@@ -1725,7 +1725,7 @@ summary::-webkit-details-marker {
   .mobile-nav-overlay {
     /* Keep it below sticky header so the close (X) in the header stays clickable */
     z-index: 9;
-    background: var(--accent-1);
+    background: var(--accent-1) !important;
     backdrop-filter: none;
   }
 
@@ -1734,27 +1734,29 @@ summary::-webkit-details-marker {
     inset: 0;
     top: 0;
     border-top: none;
-    background: transparent;
+    background: var(--accent-1);
   }
 
   .mobile-nav-inner {
     /* Full screen + readable spacing under the sticky header */
     min-height: 100vh;
     padding: 96px 20px 28px;
-    gap: 10px;
+    gap: 18px;
+    align-content: start;
   }
 
   .mobile-nav-link {
     color: var(--white);
-    font-size: 1.1rem;
-    padding: 14px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    background: rgba(255, 255, 255, 0.08);
+    font-size: 1.25rem;
+    padding: 10px 0;
+    border-radius: 0;
+    border: none;
+    background: transparent;
   }
 
   .mobile-nav-link:hover {
-    background: rgba(255, 255, 255, 0.14);
+    background: transparent;
+    opacity: 0.9;
   }
 
   .mobile-nav-cta {
