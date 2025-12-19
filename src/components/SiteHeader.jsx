@@ -110,7 +110,7 @@ export default function SiteHeader() {
         <div className="header-actions">
           <button
             type="button"
-            className="burger"
+            className={['burger', isOpen ? 'is-open' : null].filter(Boolean).join(' ')}
             aria-label={isOpen ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={isOpen}
             onClick={() => setIsOpen((v) => !v)}
