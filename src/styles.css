@@ -83,6 +83,22 @@ img {
   border-bottom: 1px solid var(--gray-200);
 }
 
+.site-header.is-menu-open {
+  background: var(--accent-1);
+  border-bottom: none;
+  backdrop-filter: none;
+}
+
+.site-header.is-menu-open .nav a,
+.site-header.is-menu-open .header-cta {
+  color: var(--white);
+}
+
+.site-header.is-menu-open .burger {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+}
+
 .topbar {
   display: flex;
   align-items: center;

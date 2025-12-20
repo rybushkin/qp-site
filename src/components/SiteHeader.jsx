@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { withBase } from '../utils/base.js';
 
 export const NAV_ITEMS = [
@@ -37,6 +38,17 @@ export default function SiteHeader() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const { pathname, hash } = window.location;
@@ -86,8 +98,44 @@ export default function SiteHeader() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  const mobileOverlay =
+    isOpen && typeof document !== 'undefined'
+      ? createPortal(
+          <div
+            className="mobile-nav-overlay"
+            role="dialog"
+            aria-label="Меню"
+            onClick={() => setIsOpen(false)}
+          >
+            <div className="mobile-nav" onClick={(e) => e.stopPropagation()}>
+              <div className="container mobile-nav-inner">
+                {navItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={['mobile-nav-link', item.href === activeHref ? 'is-active' : null].filter(Boolean).join(' ')}
+                    aria-current={item.href === activeHref ? 'page' : undefined}
+                    onClick={() => {
+                      setActiveHref(item.href);
+                      setIsOpen(false);
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+                <a className="mobile-nav-link mobile-nav-cta" href={withBase('/#contact')} onClick={() => setIsOpen(false)}>
+                  Рассчитать доставку
+                </a>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
+
   return (
-    <header className="site-header">
+    <>
+      <header className={['site-header', isOpen ? 'is-menu-open' : null].filter(Boolean).join(' ')}>
       <div className="container topbar">
         <a className="logo" href={withBase('/')} title="На главную">
           <img className="logo-img" src={withBase('/pics/logo.png')} alt="Quantum Post" decoding="async" loading="eager" />
@@ -126,38 +174,9 @@ export default function SiteHeader() {
           ) : null}
         </div>
       </div>
-
-      {isOpen ? (
-        <div
-          className="mobile-nav-overlay"
-          role="dialog"
-          aria-label="Меню"
-          onClick={() => setIsOpen(false)}
-        >
-          <div className="mobile-nav" onClick={(e) => e.stopPropagation()}>
-            <div className="container mobile-nav-inner">
-              {navItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={['mobile-nav-link', item.href === activeHref ? 'is-active' : null].filter(Boolean).join(' ')}
-                  aria-current={item.href === activeHref ? 'page' : undefined}
-                  onClick={() => {
-                    setActiveHref(item.href);
-                    setIsOpen(false);
-                  }}
-                >
-                  {item.label}
-                </a>
-              ))}
-              <a className="mobile-nav-link mobile-nav-cta" href={withBase('/#contact')} onClick={() => setIsOpen(false)}>
-                Рассчитать доставку
-              </a>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </header>
+    {mobileOverlay}
+    </>
   );
 }
 
