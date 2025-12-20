@@ -77,7 +77,7 @@ img {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 1001;
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid var(--gray-200);
@@ -175,44 +175,53 @@ img {
   transform: rotate(-45deg);
 }
 
+.burger.is-open {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
 .mobile-nav {
-  border-top: 1px solid var(--gray-200);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
+  /* Keep menu brutally simple + opaque by default (no blur / no transparency) */
+  position: fixed;
+  inset: 0;
+  top: 0;
+  border-top: none;
+  background: var(--accent-1);
+  backdrop-filter: none;
 }
 
 .mobile-nav-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-}
-
-.mobile-nav {
-  position: sticky;
-  top: 0;
+  z-index: 1000;
+  background: var(--accent-1) !important;
+  backdrop-filter: none;
+  opacity: 1;
 }
 
 .mobile-nav-inner {
-  padding: 12px 0 16px;
-  display: grid;
-  gap: 6px;
+  min-height: 100vh;
+  padding: 96px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .mobile-nav-link {
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 0.875rem;
+  color: var(--white);
+  font-size: 1.25rem;
+  padding: 10px 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .mobile-nav-link:hover {
-  background: var(--gray-100);
+  background: transparent;
+  opacity: 0.9;
 }
 
 .mobile-nav-cta {
-  width: 100%;
-  margin-top: 10px;
+  /* no special button styling — keep it as a plain menu item */
 }
 
 .nav a {
@@ -1720,52 +1729,7 @@ summary::-webkit-details-marker {
   }
 }
 
-/* Mobile menu (full-screen red overlay) */
-@media (max-width: 1024px) {
-  .mobile-nav-overlay {
-    /* Keep it below sticky header so the close (X) in the header stays clickable */
-    z-index: 9;
-    background: var(--accent-1) !important;
-    backdrop-filter: none;
-  }
-
-  .mobile-nav {
-    position: fixed;
-    inset: 0;
-    top: 0;
-    border-top: none;
-    background: var(--accent-1);
-  }
-
-  .mobile-nav-inner {
-    /* Full screen + readable spacing under the sticky header */
-    min-height: 100vh;
-    padding: 96px 20px 28px;
-    gap: 18px;
-    align-content: start;
-  }
-
-  .mobile-nav-link {
-    color: var(--white);
-    font-size: 1.25rem;
-    padding: 10px 0;
-    border-radius: 0;
-    border: none;
-    background: transparent;
-  }
-
-  .mobile-nav-link:hover {
-    background: transparent;
-    opacity: 0.9;
-  }
-
-  .mobile-nav-cta {
-    background: var(--white);
-    color: var(--accent-1);
-    border: none;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-  }
-}
+/* Mobile menu is now defined in base styles (solid red, plain list). */
 
 @media (max-width: 900px) {
   main {

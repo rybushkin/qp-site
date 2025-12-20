@@ -150,7 +150,7 @@ export default function SiteHeader() {
                   {item.label}
                 </a>
               ))}
-              <a className="btn btn-primary mobile-nav-cta" href={withBase('/#contact')} onClick={() => setIsOpen(false)}>
+              <a className="mobile-nav-link mobile-nav-cta" href={withBase('/#contact')} onClick={() => setIsOpen(false)}>
                 Рассчитать доставку
               </a>
             </div>
